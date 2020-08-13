@@ -2,11 +2,12 @@
 
 from .nodemixin import NodeMixin
 from .util import _repr
+import random
 
 
 class Node(NodeMixin, object):
 
-    def __init__(self, name, parent=None, children=None, **kwargs):
+    def __init__(self, name, parent=None, children=None, failrate=None, status=1, **kwargs):
         u"""
         A simple tree node with a `name` and any `kwargs`.
 
@@ -16,6 +17,8 @@ class Node(NodeMixin, object):
         Keyword Args:
             parent: Reference to parent node.
             children: Iterable with child nodes.
+            failrate: P(failure) integer between 0 and 100
+            status: defaults to 1 (on)
             *: Any other given attribute is just stored as object attribute.
 
         Other than :any:`AnyNode` this class has at least the `name` attribute,
@@ -71,13 +74,40 @@ class Node(NodeMixin, object):
             ├── Node('/root/sub1/sub1B', bar=8)
             └── Node('/root/sub1/sub1C')
                 └── Node('/root/sub1/sub1C/sub1Ca')
+
         """
         self.__dict__.update(kwargs)
         self.name = name
         self.parent = parent
         if children:
             self.children = children
+        # added failrate (integer between 0 and 100) and status (1/0)
+        if failrate:
+            self.failrate = failrate
+        self.status = status
 
     def __repr__(self):
         args = ["%r" % self.separator.join([""] + [str(node.name) for node in self.path])]
         return _repr(self, args=args, nameblacklist=["name"])
+
+    def getstatus(self):
+        return self.status
+
+    def onoff(self):
+        randgen = random.seed()
+        # if node has parent and parent is off, set node status to off
+        if self.parent:
+            if not self.parent.getstatus():
+                self.status = 0
+        # else, use failrate to set node status
+        else:
+            self.status = 0 if random.randrange(100) < self.failrate else 1
+
+    def setfailrate(self, rate):
+        self.failrate = rate
+
+    def refresh(self):
+        self.onoff()
+        if self.children:
+            for child in self.children:
+                child.onoff()
