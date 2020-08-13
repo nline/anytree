@@ -24,7 +24,7 @@
 
 .. image:: https://img.shields.io/badge/code%20style-pep257-brightgreen.svg
    :target: https://www.python.org/dev/peps/pep-0257/
-
+   
 Links
 =====
 
@@ -92,6 +92,39 @@ Udo
     └── Joe
 
 For details see Node_ and RenderTree_.
+
+
+**nLine**
+
+Create tree where each parent is their child's feeder. Each node has a `failrate`. When you `refresh` the tree, if a parent fails, the failure propagates to all the children and the children's children, etc. Very primitive for now! More functionality coming.
+
+>>> from anytree import Node, RenderTree
+>>> prim = Node("Prim", failrate=50)
+>>> seco = Node("Seco", failrate=20)
+>>> seco = Node("Seco", failrate=20, parent=prim)
+>>> sensor = Node("Sensor", failrate=0, parent=seco)
+>>> tinytim = Node("Tiny Tim", failrate=0, parent=seco)
+>>> seco2 = Node("Seco2", failrate=90, parent=prim)
+>>> giulio = Node("Giulio", failrate=0, parent=seco2)
+>>> for pre, fill, node in RenderTree(prim):
+...     print("%s%s" % (pre, node.name))
+... 
+Prim
+├── Seco
+│   ├── Sensor
+│   └── Tiny Tim
+└── Seco2
+    └── Giulio
+>>> prim.refresh()
+>>> sensor.getstatus()
+1
+>>> tinytim.getstatus()
+1
+>>> giulio.getstatus()
+0
+>>> sensor.getstatus()
+1
+
 
 **Visualization**
 
