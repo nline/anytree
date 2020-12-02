@@ -7,7 +7,7 @@ import random
 
 class Node(NodeMixin, object):
 
-    def __init__(self, name, parent=None, children=None, failrate=None, status=1, **kwargs):
+    def __init__(self, name, parent=None, children=None, failrate=0, status=1, **kwargs):
         u"""
         A simple tree node with a `name` and any `kwargs`.
 
@@ -17,8 +17,8 @@ class Node(NodeMixin, object):
         Keyword Args:
             parent: Reference to parent node.
             children: Iterable with child nodes.
-            failrate: P(failure) integer between 0 and 100
-            status: defaults to 1 (on)
+            failrate: P(failure) integer between 0 and 100; defaults to 0 if you only want nodes off when you tell them to.
+            status: defaults to 1 (on).
             *: Any other given attribute is just stored as object attribute.
 
         Other than :any:`AnyNode` this class has at least the `name` attribute,
@@ -92,6 +92,11 @@ class Node(NodeMixin, object):
 
     def getstatus(self):
         return self.status
+
+    def setstatus(onoff):
+        if (onoff == 0) or (onoff == 1):
+            self.setstatus(onoff)
+            self.refresh()
 
     def onoff(self):
         randgen = random.seed()
