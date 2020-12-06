@@ -82,8 +82,7 @@ class Node(NodeMixin, object):
         if children:
             self.children = children
         # added failrate (integer between 0 and 100) and status (1/0)
-        if failrate:
-            self.failrate = failrate
+        self.failrate = failrate
         self.status = status
 
     def __repr__(self):
@@ -93,9 +92,9 @@ class Node(NodeMixin, object):
     def getstatus(self):
         return self.status
 
-    def setstatus(onoff):
-        if (onoff == 0) or (onoff == 1):
-            self.setstatus(onoff)
+    def setstatus(self, new):
+        if (new == 0) or (new == 1):
+            self.status = new
             self.refresh()
 
     def onoff(self):
@@ -112,7 +111,21 @@ class Node(NodeMixin, object):
         self.failrate = rate
 
     def refresh(self):
-        self.onoff()
+        """
+        Propagates OFF's down (sub)tree
+        """
+        #self.onoff()
         if self.children:
             for child in self.children:
                 child.onoff()
+                child.refresh()
+
+    def reset(self):
+        """
+        Sets whole (sub)tree to ON
+        """
+        self.status = 1
+        if self.children:
+            for child in self.children:
+                child.status = 1
+                child.reset()
