@@ -85,7 +85,8 @@ class Node(NodeMixin, object):
         # added failrate (integer between 0 and 100) and status (1/0)
         self.failrate = failrate
         self.status = status
-        self.pos = wkt.loads(pos)
+        if pos:
+            self.pos = wkt.loads(pos)
 
     def __repr__(self):
         args = ["%r" % self.separator.join([""] + [str(node.name) for node in self.path])]
