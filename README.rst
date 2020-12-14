@@ -96,7 +96,7 @@ For details see Node_ and RenderTree_.
 
 **nLine**
 
-Create tree where each parent is their child's feeder. Each node has a `failrate`. When you `refresh` the tree, if a parent fails, the failure propagates to all the children and the children's children, etc. Very primitive for now! More functionality coming.
+Create tree model of the electrical grid. Each node has a `failrate`. When you `refresh` the tree, if a parent fails, the failure propagates to all the children and the children's children, etc. Very primitive for now! More functionality coming. *Update*: `failrate` defaults to zero and you an set a node's status. When you use `setstatus` the sub-tree is refreshed.
 
 >>> from anytree import Node, RenderTree
 >>> prim = Node("Prim", failrate=50)
@@ -107,23 +107,24 @@ Create tree where each parent is their child's feeder. Each node has a `failrate
 >>> seco2 = Node("Seco2", failrate=90, parent=prim)
 >>> giulio = Node("Giulio", failrate=0, parent=seco2)
 >>> for pre, fill, node in RenderTree(prim):
-...     print("%s%s" % (pre, node.name))
+...     print("%s%s %s" % (pre, node.status, node.name))
 ... 
-Prim
-├── Seco
-│   ├── Sensor
-│   └── Tiny Tim
-└── Seco2
-    └── Giulio
->>> prim.refresh()
->>> sensor.getstatus()
-1
->>> tinytim.getstatus()
-1
->>> giulio.getstatus()
-0
->>> sensor.getstatus()
-1
+1 Prim
+├── 1 Seco
+│   ├── 1 Sensor
+│   └── 1 Tiny Tim
+└── 1 Seco2
+    └── 1 Giulio
+>>> seco.setstatus(0)
+>>> for pre, fill, node in RenderTree(prim):
+...     print("%s%s %s" % (pre, node.status, node.name))
+... 
+1 Prim
+├── 0 Seco
+│   ├── 0 Sensor
+│   └── 0 Tiny Tim
+└── 1 Seco2
+    └── 1 Giulio
 
 
 **Visualization**
