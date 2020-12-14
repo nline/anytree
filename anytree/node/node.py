@@ -3,11 +3,11 @@
 from .nodemixin import NodeMixin
 from .util import _repr
 import random
-
+from shapely import wkt
 
 class Node(NodeMixin, object):
 
-    def __init__(self, name, parent=None, children=None, failrate=0, status=1, **kwargs):
+    def __init__(self, name, parent=None, children=None, failrate=0, status=1, pos=None, **kwargs):
         u"""
         A simple tree node with a `name` and any `kwargs`.
 
@@ -19,6 +19,7 @@ class Node(NodeMixin, object):
             children: Iterable with child nodes.
             failrate: P(failure) integer between 0 and 100; defaults to 0 if you only want nodes off when you tell them to.
             status: defaults to 1 (on).
+            pos: lat/long in WKT format e.g. 'POINT(-58.66 -34.58)'
             *: Any other given attribute is just stored as object attribute.
 
         Other than :any:`AnyNode` this class has at least the `name` attribute,
@@ -84,6 +85,7 @@ class Node(NodeMixin, object):
         # added failrate (integer between 0 and 100) and status (1/0)
         self.failrate = failrate
         self.status = status
+        self.pos = wkt.loads(pos)
 
     def __repr__(self):
         args = ["%r" % self.separator.join([""] + [str(node.name) for node in self.path])]
@@ -129,3 +131,9 @@ class Node(NodeMixin, object):
             for child in self.children:
                 child.status = 1
                 child.reset()
+
+    def getdistance(self, other):
+        """
+        Distance from this to another asset
+        """
+        return self.pos.distance(other.pos)
